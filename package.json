@@ -6,7 +6,8 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "node dist/backend/server.build.js",
-        "backend:server": "nodemon dist/backend/server.build.js",
+        "backend:prod:server": "pm2 start dist/backend/server.build.js --watch",
+        "backend:dev:server": "nodemon dist/backend/server.build.js",
         "build:dev": "webpack --config webpack.config.js --mode=development --watch",
         "build:prod": "webpack --config webpack.config.js --mode=production",
         "client:server": "live-server --port=4200 --no-browser --open=public/index.html --ignore=public/bower_components,dist/backend"
