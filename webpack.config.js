@@ -80,7 +80,7 @@ const frontendConfiguration = { // frontend will use es6 jsx & react
         ignored: /node_modules/
     },
     entry: {
-        'frontend/app': './src/frontend/app.js'
+        'frontend/app': './src/frontend/app.jsx'
     },
     output: {
         filename: '[name].build.js',

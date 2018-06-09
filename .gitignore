@@ -71,13 +71,13 @@ dist/frontend/app.build.js.map
 public/css/
 public/img/
 src/backend/config/
-src/frontend/app.js
+src/frontend/app.jsx
 src/frontend/components/bootstrap_timed_modal.component.jsx
 src/frontend/components/button.component.jsx
 src/frontend/components/calculator/
 src/frontend/components/clock.component.jsx
 src/frontend/components/footer.component.jsx
-src/frontend/components/header.component.jsx
+src/frontend/components/includes/header.component.jsx
 src/frontend/components/tic-tac-toe-game/
 src/frontend/components/todoApp/
 src/frontend/contact/
