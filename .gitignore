@@ -34,6 +34,7 @@ build/Release
 
 # Dependency directories
 node_modules
+.env
 jspm_packages
 
 # TypeScript v1 declaration files
@@ -83,4 +84,5 @@ src/frontend/contact/
 src/frontend/home/
 src/frontend/login/
 src/frontend/signup/
-views/
+src/frontend/views/
+src/frontend/components/

@@ -1,6 +1,7 @@
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
 const backendConfiguration = { // backend will use typescript
@@ -58,7 +59,10 @@ const backendConfiguration = { // backend will use typescript
     plugins: [
         // Webpack plugin that runs typescript type checker on a separate process
         new ForkTsCheckerWebpackPlugin({ checkSyntacticErrors: true }),
-        new webpack.WatchIgnorePlugin([/\.(js|jsx)$/, /\.d\.ts$/])
+        new webpack.WatchIgnorePlugin([/\.(js|jsx)$/, /\.d\.ts$/]),
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+        })
     ],
 };
 
@@ -109,6 +113,17 @@ const frontendConfiguration = { // frontend will use es6 jsx & react
             }
         ]
     },
+    devServer: {
+        contentBase: path.join(__dirname, 'public/views'),
+        compress: true,
+        watchContentBase: true,
+        watchOptions: {
+            poll: true
+        },
+        hot: true,
+        port: 9000,
+        index: 'index.html'
+    },
     plugins: [
         // A webpack plugin to remove/clean your build folder(s) before building
         new CleanWebpackPlugin(['dist/frontend'], {
@@ -116,8 +131,17 @@ const frontendConfiguration = { // frontend will use es6 jsx & react
             verbose: true,
             dry: false
         }),
-        new webpack.DefinePlugin({
-            'process.env.NODE_ENV': JSON.stringify('production')
+        /** HMR allows all kinds of modules to be updated at runtime without the need for a full refresh.
+         ** HMR is not intended for use in production.
+         */
+        new webpack.HotModuleReplacementPlugin({
+            // Options...
+            title: 'Dev: Hot Module Replacement...'
+        }),
+        // The HtmlWebpackPlugin simplifies creation of HTML files to serve your webpack bundles.
+        new HtmlWebpackPlugin({
+            filename: 'index.html',
+            template: './src/frontend/index.html'
         })
     ]
 };

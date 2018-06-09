@@ -8,7 +8,6 @@ import helmet from 'helmet';
 import mongoose from 'mongoose';
 import { join } from 'path';
 
-import env from './config/app.env';
 import { logger, errorHandler } from './config/helper';
 
 class App {
@@ -16,6 +15,7 @@ class App {
     public app: express.Application;
 
     constructor() {
+        require('dotenv').config();
         this.app = express();
         this.setMiddleware();
         this.configureMiddleware();
@@ -27,11 +27,11 @@ class App {
     // set middleware
     private setMiddleware() {
         this.app.enable('trust proxy');
-        this.app.set('port', env.PORT);
-        this.app.set('views', env.VIEWS);
-        this.app.set('static files', env.STATIC_FILES);
-        this.app.set('hostname', env.LOCALHOST);
-        this.app.set('NODE_ENV', env.NODE_ENV);
+        this.app.set('port', process.env.PORT);
+        this.app.set('node_env', process.env.NODE_ENV);
+        this.app.set('views', join(__dirname, '../../../views'));
+        this.app.set('static files', join(__dirname, '../../../public'));
+        this.app.set('hostname', process.env.LOCALHOST);
     }
 
     // configure middleware
@@ -51,8 +51,8 @@ class App {
         this.app.use(cookieParser());
         // session
         this.app.use(session({
-            secret: env.SECRET_KEY,
-            name: env.SESSION_NAME,
+            secret: process.env.SECRET_KEY as string,
+            name: process.env.SESSION_NAME as string,
             saveUninitialized: true, // create session until something stored
             resave: false, // don't save session if unmodified
             cookie: { maxAge: 300000 }, // 60000 milliseconds = 1 minute, 300000 is 5 minutes
@@ -60,10 +60,14 @@ class App {
         // Middleware: configure our app to handle CORS requests
         this.app.use(cors());
 
-        console.log('NODE_ENV:', process.env.NODE_ENV);
+        console.log('NODE_ENV:', this.app.get('node_env'));
+        // development or production
         if (process.env.NODE_ENV === 'production') {
             this.app.use(compression());
-        } else if (process.env.NODE_ENV === 'development') {
+            console.log('Welcome to production');
+        }
+
+        if (process.env.NODE_ENV === 'development') {
             this.app.use(logger());
         }
     }
@@ -78,7 +82,7 @@ class App {
 
         // 404 route
 
-        // error handling
+        // 500 error handling
         this.app.use(errorHandler());
     }
 }

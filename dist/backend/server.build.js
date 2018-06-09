@@ -6563,6 +6563,94 @@ module.exports = function nosniff () {
 
 /***/ }),
 
+/***/ "./node_modules/dotenv/lib/main.js":
+/*!*****************************************!*\
+  !*** ./node_modules/dotenv/lib/main.js ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+const fs = __webpack_require__(/*! fs */ "fs")
+const path = __webpack_require__(/*! path */ "path")
+
+/*
+ * Parses a string or buffer into an object
+ * @param {(string|Buffer)} src - source to be parsed
+ * @returns {Object} keys and values from src
+*/
+function parse (src) {
+  const obj = {}
+
+  // convert Buffers before splitting into lines and processing
+  src.toString().split('\n').forEach(function (line) {
+    // matching "KEY' and 'VAL' in 'KEY=VAL'
+    const keyValueArr = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/)
+    // matched?
+    if (keyValueArr != null) {
+      const key = keyValueArr[1]
+
+      // default undefined or missing values to empty string
+      let value = keyValueArr[2] || ''
+
+      // expand newlines in quoted values
+      const len = value ? value.length : 0
+      if (len > 0 && value.charAt(0) === '"' && value.charAt(len - 1) === '"') {
+        value = value.replace(/\\n/gm, '\n')
+      }
+
+      // remove any surrounding quotes and extra spaces
+      value = value.replace(/(^['"]|['"]$)/g, '').trim()
+
+      obj[key] = value
+    }
+  })
+
+  return obj
+}
+
+/*
+ * Main entry point into dotenv. Allows configuration before loading .env
+ * @param {Object} options - options for parsing .env file
+ * @param {string} [options.path=.env] - path to .env file
+ * @param {string} [options.encoding=utf8] - encoding of .env file
+ * @returns {Object} parsed object or error
+*/
+function config (options) {
+  let dotenvPath = path.resolve(process.cwd(), '.env')
+  let encoding = 'utf8'
+
+  if (options) {
+    if (options.path) {
+      dotenvPath = options.path
+    }
+    if (options.encoding) {
+      encoding = options.encoding
+    }
+  }
+
+  try {
+    // specifying an encoding returns a string instead of a buffer
+    const parsed = parse(fs.readFileSync(dotenvPath, { encoding }))
+
+    Object.keys(parsed).forEach(function (key) {
+      if (!process.env.hasOwnProperty(key)) {
+        process.env[key] = parsed[key]
+      }
+    })
+
+    return { parsed }
+  } catch (e) {
+    return { error: e }
+  }
+}
+
+module.exports.config = config
+module.exports.load = config
+module.exports.parse = parse
+
+
+/***/ }),
+
 /***/ "./node_modules/ee-first/index.js":
 /*!****************************************!*\
   !*** ./node_modules/ee-first/index.js ***!
@@ -37671,7 +37759,7 @@ module.exports = function xXssProtection (options) {
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
+/* WEBPACK VAR INJECTION */(function(__dirname) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -37683,10 +37771,11 @@ var express_session_1 = __importDefault(__webpack_require__(/*! express-session 
 var cors_1 = __importDefault(__webpack_require__(/*! cors */ "./node_modules/cors/lib/index.js"));
 var compression_1 = __importDefault(__webpack_require__(/*! compression */ "./node_modules/compression/index.js"));
 var helmet_1 = __importDefault(__webpack_require__(/*! helmet */ "./node_modules/helmet/index.js"));
-var app_env_1 = __importDefault(__webpack_require__(/*! ./config/app.env */ "./src/backend/config/app.env.ts"));
+var path_1 = __webpack_require__(/*! path */ "path");
 var helper_1 = __webpack_require__(/*! ./config/helper */ "./src/backend/config/helper.ts");
 var App = /** @class */ (function () {
     function App() {
+        __webpack_require__(/*! dotenv */ "./node_modules/dotenv/lib/main.js").config();
         this.app = express_1.default();
         this.setMiddleware();
         this.configureMiddleware();
@@ -37696,11 +37785,11 @@ var App = /** @class */ (function () {
     // set middleware
     App.prototype.setMiddleware = function () {
         this.app.enable('trust proxy');
-        this.app.set('port', app_env_1.default.PORT);
-        this.app.set('views', app_env_1.default.VIEWS);
-        this.app.set('static files', app_env_1.default.STATIC_FILES);
-        this.app.set('hostname', app_env_1.default.LOCALHOST);
-        this.app.set('NODE_ENV', app_env_1.default.NODE_ENV);
+        this.app.set('port', process.env.PORT);
+        this.app.set('node_env', "development");
+        this.app.set('views', path_1.join(__dirname, '../../../views'));
+        this.app.set('static files', path_1.join(__dirname, '../../../public'));
+        this.app.set('hostname', process.env.LOCALHOST);
     };
     // configure middleware
     App.prototype.configureMiddleware = function () {
@@ -37719,17 +37808,18 @@ var App = /** @class */ (function () {
         this.app.use(cookie_parser_1.default());
         // session
         this.app.use(express_session_1.default({
-            secret: app_env_1.default.SECRET_KEY,
-            name: app_env_1.default.SESSION_NAME,
+            secret: process.env.SECRET_KEY,
+            name: process.env.SESSION_NAME,
             saveUninitialized: true,
             resave: false,
             cookie: { maxAge: 300000 },
         }));
         // Middleware: configure our app to handle CORS requests
         this.app.use(cors_1.default());
-        console.log('NODE_ENV:', "development");
+        console.log('NODE_ENV:', this.app.get('node_env'));
+        // development or production
         if (false) {}
-        else if (true) {
+        if (true) {
             this.app.use(helper_1.logger());
         }
     };
@@ -37740,41 +37830,12 @@ var App = /** @class */ (function () {
         });
         // various routes
         // 404 route
-        // error handling
+        // 500 error handling
         this.app.use(helper_1.errorHandler());
     };
     return App;
 }());
 exports.default = new App().app;
-
-
-/***/ }),
-
-/***/ "./src/backend/config/app.env.ts":
-/*!***************************************!*\
-  !*** ./src/backend/config/app.env.ts ***!
-  \***************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(__dirname) {
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var path_1 = __importDefault(__webpack_require__(/*! path */ "path"));
-exports.default = {
-    NODE_ENV: 'development',
-    PORT: 3000,
-    VIEWS: path_1.default.join(__dirname, '../../../views'),
-    STATIC_FILES: path_1.default.join(__dirname, '../../../public'),
-    VIEW_ENGINE: 'njk',
-    LOCALHOST: '127.0.0.1',
-    DB_URI: 'mongodb://127.0.0.1:27017/learning_react_db',
-    SECRET_KEY: 'TKRv0IJs&HYqrvagQ&!F!%V]Ww/4KiVs$s,<<MX',
-    SESSION_NAME: 'learningReactSessionName',
-};
 
 /* WEBPACK VAR INJECTION */}.call(this, "/"))
 
@@ -37789,27 +37850,85 @@ exports.default = {
 
 "use strict";
 
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [0, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.logger = function () {
     return function (req, res, next) {
         var timestamp = new Date();
         var ms = timestamp.getMilliseconds();
-        console.log("Logs:: " + req.method + " - " + res.statusCode + " --> '" + req.originalUrl + "' -- " + ms + " ms -- " + timestamp.toLocaleTimeString());
+        console.log("Logs:: " + req.method + " - '" + req.originalUrl + "' | statusCode: " + res.statusCode + " | " + ms + " ms -- " + timestamp.toLocaleTimeString());
         next();
     };
 };
 exports.errorHandler = function () {
     return function (error, req, res, next) {
-        res.status(500).send(error.message); // error.message is a outputs a specific error
+        res.status(500 || error.status).send(error.message); // error.message is a outputs a specific error
         console.error("PATH: " + req.originalUrl + " Error: " + error.stack); // error.stack is used for more details in error
-        next();
     };
 };
-// export const asyncPromises = (arg_1: any, arg_2: any) => {
-//     return new Promise((resolve, reject) => {
-//
-//     });
-// };
+exports.asyncAndAwaitPromise = function (dataArgs) { return __awaiter(_this, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, dataArgs];
+            case 1: return [2 /*return*/, _a.sent()]; // the return is a promise
+        }
+    });
+}); };
+// usage
+/**
+ * asyncAndAwaitPromise(exampleData).then((promiseData) => { console.log(promiseData)}).catch((err) => console.log(err));
+ */
+// run series of promises: executes an array of Promises
+exports.promiseDotAll = function () {
+    var args = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+    }
+    return Promise.all(args.slice());
+};
+// usage
+/**
+ * promiseDotAll(studentsData, {password: 12345678})
+ *  .then((promiseData) => {
+ *      console.log('Promise Data 1:', promiseData[0]);
+ *      console.log('Promise Data 2:', promiseData[1])})
+ *  .catch((err) => console.log(err));
+ */
 
 
 /***/ }),

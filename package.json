@@ -5,12 +5,12 @@
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "node dist/backend/server.build.js",
-        "backend:prod:server": "pm2 start dist/backend/server.build.js --watch",
+        "start": "NODE_ENV=production node dist/backend/server.build.js",
+        "backend:prod:server": "NODE_ENV=production pm2 start dist/backend/server.build.js --watch",
         "backend:dev:server": "nodemon dist/backend/server.build.js",
         "build:dev": "webpack --config webpack.config.js --mode=development --watch",
         "build:prod": "webpack --config webpack.config.js --mode=production",
-        "client:server": "live-server --port=4200 --no-browser --open=public/index.html --ignore=public/bower_components,dist/backend"
+        "client:server": "webpack-dev-server --mode=development --open"
     },
     "keywords": [],
     "author": "",
@@ -48,6 +48,7 @@
         "babel-loader": "^8.0.0-beta.3",
         "cache-loader": "^1.2.2",
         "clean-webpack-plugin": "^0.1.19",
+        "dotenv": "^6.0.0",
         "eslint": "^4.19.1",
         "eslint-config-airbnb": "^16.1.0",
         "eslint-loader": "^2.0.0",
@@ -55,10 +56,12 @@
         "eslint-plugin-jsx-a11y": "^6.0.3",
         "eslint-plugin-react": "^7.8.2",
         "fork-ts-checker-webpack-plugin": "^0.4.1",
+        "html-webpack-plugin": "^3.2.0",
         "react-addons-css-transition-group": "^15.6.2",
         "ts-loader": "^4.3.0",
         "tslint": "^5.10.0",
         "tslint-loader": "^3.6.0",
-        "typescript": "^2.8.3"
+        "typescript": "^2.8.3",
+        "webpack-dev-server": "^3.1.4"
     }
 }
