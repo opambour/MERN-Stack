@@ -4,7 +4,7 @@ import { HomeComponent } from './views/home/home.component';
 import { HeaderComponent } from './components/includes/header.component';
 
 // header
-ReactDom.render(<HeaderComponent/>, document.getElementById('main_header'));
+ReactDom.render(<HeaderComponent brand={' MERN '}/>, document.getElementById('main_header'));
 
 // main content
 ReactDom.render(<HomeComponent/>, document.getElementById('main_content'));
