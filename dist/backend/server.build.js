@@ -37785,8 +37785,8 @@ var App = /** @class */ (function () {
     // set middleware
     App.prototype.setMiddleware = function () {
         this.app.enable('trust proxy');
-        this.app.set('port', process.env.PORT);
-        this.app.set('node_env', "development");
+        this.app.set('port', helper_1.normalizePort(process.env.PORT));
+        this.app.set('node_env', "development"); // change process.env.NODE_ENV to production in webpack.config
         this.app.set('views', path_1.join(__dirname, '../../../views'));
         this.app.set('static files', path_1.join(__dirname, '../../../public'));
         this.app.set('hostname', process.env.LOCALHOST);
@@ -37896,10 +37896,23 @@ exports.logger = function () {
     };
 };
 exports.errorHandler = function () {
-    return function (error, req, res, next) {
-        res.status(500 || error.status).send(error.message); // error.message is a outputs a specific error
-        console.error("PATH: " + req.originalUrl + " Error: " + error.stack); // error.stack is used for more details in error
-    };
+    if (false) {}
+    if (true) {
+        return function (error, req, res) {
+            // error.message is a outputs a specific error &  error.stack is used for more details in error
+            // statusCode 500 is Server Error
+            res.status(500).send(error.message + "\n" + error.stack);
+            console.error("PATH: " + req.originalUrl + " Error: " + error.message);
+        };
+    }
+};
+exports.normalizePort = function (port) {
+    if (typeof port !== 'number') {
+        return parseInt(port, 10) || port;
+    }
+    else {
+        return port;
+    }
 };
 exports.asyncAndAwaitPromise = function (dataArgs) { return __awaiter(_this, void 0, void 0, function () {
     return __generator(this, function (_a) {

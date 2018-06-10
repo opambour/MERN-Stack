@@ -8,7 +8,7 @@ import helmet from 'helmet';
 import mongoose from 'mongoose';
 import { join } from 'path';
 
-import { logger, errorHandler } from './config/helper';
+import { logger, errorHandler, normalizePort } from './config/helper';
 
 class App {
     // initialize express app
@@ -27,8 +27,8 @@ class App {
     // set middleware
     private setMiddleware() {
         this.app.enable('trust proxy');
-        this.app.set('port', process.env.PORT);
-        this.app.set('node_env', process.env.NODE_ENV);
+        this.app.set('port', normalizePort(process.env.PORT));
+        this.app.set('node_env', process.env.NODE_ENV); // change process.env.NODE_ENV to production in webpack.config
         this.app.set('views', join(__dirname, '../../../views'));
         this.app.set('static files', join(__dirname, '../../../public'));
         this.app.set('hostname', process.env.LOCALHOST);

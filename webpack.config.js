@@ -61,7 +61,7 @@ const backendConfiguration = { // backend will use typescript
         new ForkTsCheckerWebpackPlugin({ checkSyntacticErrors: true }),
         new webpack.WatchIgnorePlugin([/\.(js|jsx)$/, /\.d\.ts$/]),
         new webpack.DefinePlugin({
-            'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+            'process.env.NODE_ENV': JSON.stringify('development') // change it to production when ready
         })
     ],
 };
