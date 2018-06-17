@@ -8,3 +8,5 @@ ReactDom.render(<HeaderComponent brand={' MERN '}/>, document.getElementById('ma
 
 // main content
 ReactDom.render(<HomeComponent/>, document.getElementById('main_content'));
+
+// footer
