@@ -34,7 +34,6 @@ build/Release
 
 # Dependency directories
 node_modules
-.env
 jspm_packages
 
 # TypeScript v1 declaration files
@@ -66,23 +65,3 @@ typings/
 .bowerrc
 .idea/
 bower.json
-dist/frontend/app.build.js
-dist/frontend/app.build.js.map
-public/css/
-public/img/
-src/backend/config/
-src/frontend/app.jsx
-src/frontend/components/bootstrap_timed_modal.component.jsx
-src/frontend/components/button.component.jsx
-src/frontend/components/calculator/
-src/frontend/components/clock.component.jsx
-src/frontend/components/footer.component.jsx
-src/frontend/components/includes/header.component.jsx
-src/frontend/components/tic-tac-toe-game/
-src/frontend/components/todoApp/
-src/frontend/contact/
-src/frontend/home/
-src/frontend/login/
-src/frontend/signup/
-src/frontend/views/
-src/frontend/components/
