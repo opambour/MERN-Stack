@@ -12,15 +12,21 @@ export const logger = () => {
 
 export const errorHandler = () => {
     if (process.env.NODE_ENV === 'production') {
-        return (error: Error, req: Request, res: Response) => {
+        return (error: Error, req: Request, res: Response, next: NextFunction) => {
+            if (res.headersSent) {
+                return next(error);
+            }
             res.status(500).send(error.message); // error.message is a outputs a specific error
         };
     }
 
     if (process.env.NODE_ENV === 'development') {
-        return (error: Error, req: Request, res: Response) => {
+        return (error: Error, req: Request, res: Response, next: NextFunction) => {
             // error.message is a outputs a specific error &  error.stack is used for more details in error
             // statusCode 500 is Server Error
+            if (res.headersSent) {
+                return next(error);
+            }
             res.status(500).send(`${error.message}\n${error.stack}`);
             console.error(`PATH: ${req.originalUrl} Error: ${error.message}`);
         };

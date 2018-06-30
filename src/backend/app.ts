@@ -9,6 +9,7 @@ import mongoose from 'mongoose';
 import { join } from 'path';
 
 import { logger, errorHandler, normalizePort } from './config/helper';
+import { mongooseConfig } from './config/mongoose.config';
 
 class App {
     // initialize express app
@@ -17,12 +18,17 @@ class App {
     constructor() {
         require('dotenv').config();
         this.app = express();
+        this.mongooseConfiguration();
         this.setMiddleware();
         this.configureMiddleware();
         this.routing();
+        this.errorHandlers();
     }
 
     // mongoose
+    private mongooseConfiguration() {
+        mongooseConfig(mongoose);
+    }
 
     // set middleware
     private setMiddleware() {
@@ -65,25 +71,39 @@ class App {
         if (process.env.NODE_ENV === 'production') {
             this.app.use(compression());
             console.log('Welcome to production');
-        }
-
-        if (process.env.NODE_ENV === 'development') {
+        } else if (process.env.NODE_ENV === 'development') {
             this.app.use(logger());
         }
     }
 
     private routing() {
         // test a route
-        this.app.get('/', (req: express.Request, res: express.Response) => {
-            res.send('hello world, welcome to Express/Node.js!');
+        this.app.get('/', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+            Promise.resolve()
+                .then(() => res.status(200).send('hello world, welcome to Express/Node.js!'))
+                .catch((err) => next(err));
         });
 
         // various routes
+    }
+
+    private errorHandlers() {
+        // // custom 404 page
+        // this.expressApp.use((req: express.Request, res: express.Response) => {
+        // 	res.status(404).render('error/404',
+        // 		{ title: 'Page Not Found', urlAttempted: req.url, path: req.originalUrl },
+        // 	);
+        // });
 
         // 404 route
+        this.app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+            Promise.resolve()
+                .then(() => res.status(404).send(`404: Page Not Found...attempted to request '${req.url}'`))
+                .catch((err) => next(err));
+        });
 
         // 500 error handling
-        this.app.use(errorHandler());
+        this.app.use(errorHandler);
     }
 }
 

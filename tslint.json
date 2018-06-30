@@ -25,7 +25,7 @@
         "linebreak-style": [true, "CRLF"],
         "no-duplicate-imports": true,
         "object-literal-sort-keys": false,
-        "trailing-comma": [true, { "multiline": "always", "singleline": "never" }],
+        "trailing-comma": [false, { "multiline": "always", "singleline": "never" }],
         "array-type": [true, "generic"],
         "arrow-parens": true,
         "only-arrow-functions": false,
