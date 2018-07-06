@@ -29,12 +29,12 @@ Flow requires an empty flowconfig...To create flow config, issue this command in
 For each file that you have flagged with // @flow, you now have the full power of Flow and its type-checking available to you. Here is an example Flow file:
 
 // @flow
-function add(x: ?number, y: ?number): string {
-    if (x && y) {
-        return x + y;
-    }
+        function add(x: ?number, y: ?number): string {
+            if (x && y) {
+                return x + y;
+            }
 
-    return `${x} and ${y} should be numbers`;
-}
+            return `${x} and ${y} should be numbers`;
+        }
 
 **Version #:** 1.0.0
